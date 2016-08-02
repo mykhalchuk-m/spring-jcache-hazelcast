@@ -23,6 +23,14 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
@@ -60,6 +68,60 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.15.3</version>
+				<configuration>
+					<dockerHost>tcp://192.168.99.100:2376</dockerHost>
+					<certPath>d:\prodramming\utils\.docker\machine\machines\default</certPath>
+					<verbose>true</verbose>
+					<images>
+						<image>
+							<name>marian/spring-jcache-hazelcast</name>
+							<alias>${project.artifactId}</alias>
+							<build>
+								<dockerFile>Dockerfile</dockerFile>
+								<assembly>
+									<descriptorRef>artifact</descriptorRef>
+								</assembly>
+							</build>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>8080:8080</port>
+								</ports>
+							</run>
+						</image>
+					</images>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/main/docker</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
