@@ -18,14 +18,18 @@ public class PersonService {
 	private final PersonRepository personRepository;
 
 	@Caching(put = @CachePut(value = "persons", key = "#person.id"),
-			evict = @CacheEvict(value = "personsByLastName", key = "#person.lastName"))
+			evict = {
+					@CacheEvict(value = "personsByLastName", key = "#person.lastName"),
+					@CacheEvict(value = "personsAll", allEntries = true)
+			})
 	public Person save(Person person) {
 		return personRepository.save(person);
 	}
 
 	@Caching(evict = {
 			@CacheEvict(value = "persons", key = "#person.id"),
-			@CacheEvict(value = "personsByLastName", key = "#person.lastName")
+			@CacheEvict(value = "personsByLastName", key = "#person.lastName"),
+			@CacheEvict(value = "personsAll", allEntries = true)
 	})
 	public void delete(Person person) {
 		personRepository.delete(person.getId());
@@ -41,6 +45,7 @@ public class PersonService {
 		return personRepository.findByLastName(lastName);
 	}
 
+	@Cacheable(value = "personsAll")
 	public List<Person> findAll() {
 		return Lists.newArrayList(personRepository.findAll());
 	}
